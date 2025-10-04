@@ -1,0 +1,62 @@
+{
+  "name": "problem5-crud-api-typeorm",
+  "version": "1.0.0",
+  "description": "Problem 5: Enterprise CRUD API with TypeORM and PostgreSQL",
+  "main": "server.ts",
+  "scripts": {
+    "start": "node dist/server.js",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "setup": "powershell -ExecutionPolicy Bypass -File setup-dev.ps1",
+    "setup:bash": "bash setup-dev.sh",
+    "typeorm": "npx typeorm",
+    "migration:generate": "npx typeorm migration:generate -d database/typeorm.ts",
+    "migration:run": "npx typeorm migration:run -d database/typeorm.ts",
+    "migration:revert": "npx typeorm migration:revert -d database/typeorm.ts",
+    "migration:show": "npx typeorm migration:show -d database/typeorm.ts",
+    "lint": "eslint **/*.ts",
+    "lint:fix": "eslint **/*.ts --fix",
+    "format": "prettier --write **/*.ts",
+    "docker:db": "docker run --name postgres-99tech -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=99tech_challenge -p 5432:5432 -d postgres:15"
+  },
+  "keywords": [
+    "backend",
+    "typescript",
+    "express",
+    "api",
+    "crud",
+    "typeorm",
+    "postgresql",
+    "enterprise"
+  ],
+  "author": "Tai Pham Anh",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.5.0",
+    "@types/pg": "^8.15.5",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.47.0",
+    "jest": "^29.6.2",
+    "prettier": "^3.0.1",
+    "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.27"
+  }
+}

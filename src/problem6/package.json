@@ -1,0 +1,24 @@
+{
+  "name": "problem6-api-module-design",
+  "version": "1.0.0",
+  "description": "Problem 6: API Module Design and Architecture Documentation",
+  "main": "index.ts",
+  "scripts": {
+    "docs": "echo 'API documentation and system design available in this directory'",
+    "validate": "echo 'Validating API specifications and design documents'",
+    "lint": "echo 'No TypeScript files to lint - documentation only'",
+    "format": "prettier --write **/*.md"
+  },
+  "keywords": [
+    "api-design",
+    "documentation",
+    "architecture",
+    "system-design",
+    "specifications"
+  ],
+  "author": "Tai Pham Anh",
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.0.1"
+  }
+}
