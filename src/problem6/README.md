@@ -13,12 +13,13 @@ This document specifies the design for a live score board system that enables re
 5. **Security**: Prevent unauthorized score manipulation
 
 ## Table of Contents
-
+- [Solution Concept](specifications/solution-concept.md)
 - [API Endpoints](specifications/endpoints.md)
 - [Real-time Communication](specifications/realtime.md)
 - [Security & Authorization](specifications/security.md)
 - [System Architecture](diagrams/system-flow.md)
 - [Database Design](diagrams/api-structure.md)
+
 
 ## Quick Start
 
@@ -76,24 +77,6 @@ socket.emit('scoreboard_update', {
 - **Security**: Helmet.js, rate limiting, input validation
 - **Monitoring**: Prometheus + Grafana
 
-## Implementation Phases
-
-### Phase 1: Core API (Week 1)
-- Basic CRUD operations for users and scores
-- Authentication system
-- Database schema implementation
-
-### Phase 2: Real-time Features (Week 2)
-- WebSocket integration
-- Live scoreboard updates
-- Client-side connection management
-
-### Phase 3: Security & Performance (Week 3)
-- Rate limiting implementation
-- Caching layer with Redis
-- Security hardening
-
-### Phase 4: Monitoring & Analytics (Week 4)
 - Logging and monitoring setup
 - Performance optimization
 - Load testing and scaling
