@@ -10,7 +10,14 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "setup": "bash setup-dev.sh",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:logs": "docker-compose logs -f",
+    "docker:dev": "docker-compose up -d --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d",
+    "docker:clean": "docker-compose down -v --remove-orphans",
+    "docker:pgadmin": "docker-compose --profile tools up pgadmin -d",
     "typeorm": "npx typeorm",
     "migration:generate": "npx typeorm migration:generate -d database/typeorm.ts",
     "migration:run": "npx typeorm migration:run -d database/typeorm.ts",
@@ -18,8 +25,7 @@
     "migration:show": "npx typeorm migration:show -d database/typeorm.ts",
     "lint": "eslint **/*.ts",
     "lint:fix": "eslint **/*.ts --fix",
-    "format": "prettier --write **/*.ts",
-    "docker:db": "docker run --name postgres-99tech -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -e POSTGRES_DB=99tech_challenge -p 5433:5432 -d postgres:15"
+    "format": "prettier --write **/*.ts"
   },
   "keywords": [
     "backend",

@@ -10,9 +10,25 @@ yarn install
 
 ## Quick Setup
 
+### 🐳 Docker (Recommended)
 ```bash
-# Run setup script (Linux/Mac)
-yarn setup
+# Start everything with Docker
+yarn docker:dev
+```
+
+### 🛠️ Manual Setup
+```bash
+# Install dependencies
+yarn install
+
+# Configure environment
+cp .env.example .env
+
+# Start PostgreSQL (requires Docker)
+yarn docker:up postgres
+
+# Start development server
+yarn dev
 ```
 
 ## Usage

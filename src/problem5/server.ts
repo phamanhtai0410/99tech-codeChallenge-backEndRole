@@ -10,7 +10,9 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { resourceRoutes } from './routes/resources';
 import { errorHandler } from './middleware/errorHandler';
+import { requestTracker, performanceMonitor, errorLogger } from './middleware/logging';
 import { DatabaseManager } from './database/typeorm';
+import { serverLogger, appLogger } from './utils/logger';
 
 // Load environment variables
 dotenv.config();
@@ -22,6 +24,10 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet()); // Security headers
 app.use(cors()); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
+
+// Add logging middleware
+app.use(requestTracker); // Track requests with unique IDs
+app.use(performanceMonitor); // Monitor slow requests
 
 // Routes
 app.use('/api/resources', resourceRoutes);
@@ -47,6 +53,7 @@ app.get('/health', async (req, res) => {
 });
 
 // Error handling middleware (must be last)
+app.use(errorLogger); // Log errors before handling them
 app.use(errorHandler);
 
 // Initialize database and start server
@@ -55,31 +62,31 @@ async function startServer() {
     // Initialize TypeORM database connection
     const dbManager = DatabaseManager.getInstance();
     await dbManager.initialize();
-    console.log('✅ Database connected successfully');
+    serverLogger.info('Database connected successfully');
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`📊 Health check: http://localhost:${PORT}/health`);
-      console.log(`🔗 API endpoints: http://localhost:${PORT}/api/resources`);
-      console.log(`📈 Statistics: http://localhost:${PORT}/api/resources/statistics`);
-      console.log(`📚 Bulk operations: http://localhost:${PORT}/api/resources/bulk`);
+      serverLogger.info(`Server is running on port ${PORT}`, { port: PORT });
+      appLogger.info(`Health check: http://localhost:${PORT}/health`);
+      appLogger.info(`API endpoints: http://localhost:${PORT}/api/resources`);
+      appLogger.info(`Statistics: http://localhost:${PORT}/api/resources/statistics`);
+      appLogger.info(`Bulk operations: http://localhost:${PORT}/api/resources/bulk`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    serverLogger.error('Failed to start server', error as Error);
     process.exit(1);
   }
 }
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('\n🛑 Shutting down gracefully...');
+  serverLogger.info('Shutting down gracefully...');
   try {
     const dbManager = DatabaseManager.getInstance();
     await dbManager.close();
-    console.log('✅ Database connection closed');
+    serverLogger.info('Database connection closed');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error during shutdown:', error);
+    serverLogger.error('Error during shutdown', error as Error);
     process.exit(1);
   }
 });

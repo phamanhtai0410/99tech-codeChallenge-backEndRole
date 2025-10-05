@@ -1,0 +1,18 @@
+services:
+  api:
+    environment:
+      NODE_ENV: production
+      DB_SYNCHRONIZE: false
+      DB_LOGGING: false
+    command: yarn start
+    volumes: []
+
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_in_production}
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_prod_data:
+    driver: local

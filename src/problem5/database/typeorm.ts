@@ -3,8 +3,10 @@
  * Enterprise-grade database setup with PostgreSQL
  */
 
+import 'dotenv/config'; // Load environment variables first
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Resource } from '../models/resource';
+import { dbLogger, globalLogger } from '../utils/logger';
 
 // Database configuration interface
 interface DatabaseConfig {
@@ -43,6 +45,16 @@ function getDatabaseConfig(): DatabaseConfig {
  */
 function createDataSourceOptions(): DataSourceOptions {
   const config = getDatabaseConfig();
+
+  globalLogger.info('Database configuration loaded', {
+    host: config.host,
+    port: config.port,
+    database: config.database,
+    username: config.username,
+    synchronize: config.synchronize,
+    logging: config.logging,
+    ssl: config.ssl
+  });
   
   return {
     type: 'postgres',
@@ -91,25 +103,47 @@ export class DatabaseManager {
   }
 
   /**
-   * Initialize database connection
+   * Initialize database connection with retry logic
    */
   async initialize(): Promise<void> {
-    try {
-      if (!this.isConnected) {
-        await this.dataSource.initialize();
-        this.isConnected = true;
-        console.log('✅ Database connection established successfully');
-        
-        // Log connection details in development
-        if (process.env.NODE_ENV === 'development') {
-          const pgOptions = this.dataSource.options as any;
-          console.log(`📊 Connected to PostgreSQL at ${pgOptions.host}:${pgOptions.port}`);
-          console.log(`🗄️  Database: ${pgOptions.database}`);
+    const config = getDatabaseConfig();
+    dbLogger.info('Attempting database connection...', {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      username: config.username
+    });
+    
+    for (let attempt = 1; attempt <= config.retryAttempts; attempt++) {
+      try {
+        if (!this.isConnected) {
+          dbLogger.info(`Connection attempt ${attempt}/${config.retryAttempts}...`);
+          
+          await this.dataSource.initialize();
+          this.isConnected = true;
+          dbLogger.info('Database connection established successfully');
+          
+          // Log connection details in development
+          if (process.env.NODE_ENV === 'development') {
+            const pgOptions = this.dataSource.options as any;
+            dbLogger.info(`Connected to PostgreSQL`, {
+              host: pgOptions.host,
+              port: pgOptions.port,
+              database: pgOptions.database
+            });
+          }
+          return; // Success - exit retry loop
         }
+      } catch (error) {
+        dbLogger.error(`Database connection attempt ${attempt} failed`, error as Error);
+        
+        if (attempt === config.retryAttempts) {
+          throw new Error(`Database initialization failed after ${config.retryAttempts} attempts: ${error}`);
+        }
+        
+        dbLogger.warn(`Waiting ${config.retryDelay}ms before retry...`, { attempt, retryDelay: config.retryDelay });
+        await new Promise(resolve => setTimeout(resolve, config.retryDelay));
       }
-    } catch (error) {
-      console.error('❌ Database connection failed:', error);
-      throw new Error(`Database initialization failed: ${error}`);
     }
   }
 
@@ -130,7 +164,7 @@ export class DatabaseManager {
     if (this.isConnected) {
       await this.dataSource.destroy();
       this.isConnected = false;
-      console.log('🔒 Database connection closed');
+      dbLogger.info('Database connection closed');
     }
   }
 

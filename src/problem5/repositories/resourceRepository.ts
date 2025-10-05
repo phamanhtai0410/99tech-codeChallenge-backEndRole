@@ -30,11 +30,17 @@ export interface CreateResourceData {
  * Provides abstraction layer over TypeORM for testability and maintainability
  */
 export class ResourceRepository {
-  private repository: Repository<Resource>;
+  private repository: Repository<Resource> | null = null;
 
-  constructor() {
-    const dataSource = DatabaseManager.getInstance().getDataSource();
-    this.repository = dataSource.getRepository(Resource);
+  /**
+   * Get repository instance with lazy initialization
+   */
+  private getRepository(): Repository<Resource> {
+    if (!this.repository) {
+      const dataSource = DatabaseManager.getInstance().getDataSource();
+      this.repository = dataSource.getRepository(Resource);
+    }
+    return this.repository;
   }
 
   /**
@@ -50,7 +56,7 @@ export class ResourceRepository {
       throw new Error('Resource value must be a non-negative number');
     }
 
-    const resource = this.repository.create({
+    const resource = this.getRepository().create({
       ...resourceData,
       name: resourceData.name.trim(),
       createdAt: new Date(),
@@ -58,7 +64,7 @@ export class ResourceRepository {
     });
 
     try {
-      return await this.repository.save(resource);
+      return await this.getRepository().save(resource);
     } catch (error: any) {
       if (error.code === '23505') { // PostgreSQL unique constraint error
         throw new Error('A resource with this name already exists');
@@ -76,7 +82,7 @@ export class ResourceRepository {
     }
 
     try {
-      return await this.repository.findOne({ where: { id } });
+      return await this.getRepository().findOne({ where: { id } });
     } catch (error: any) {
       throw new Error(`Failed to find resource: ${error.message}`);
     }
@@ -99,7 +105,7 @@ export class ResourceRepository {
     }
 
     try {
-      const queryBuilder = this.repository.createQueryBuilder('resource');
+      const queryBuilder = this.getRepository().createQueryBuilder('resource');
 
       // Apply filters
       if (filters.status) {
@@ -163,7 +169,7 @@ export class ResourceRepository {
     }
 
     try {
-      const resource = await this.repository.findOne({ where: { id } });
+      const resource = await this.getRepository().findOne({ where: { id } });
       if (!resource) {
         return null;
       }
@@ -187,10 +193,10 @@ export class ResourceRepository {
       }
 
       // Perform update
-      await this.repository.update(id, sanitizedData);
+      await this.getRepository().update(id, sanitizedData);
 
       // Return updated resource
-      return await this.repository.findOne({ where: { id } });
+      return await this.getRepository().findOne({ where: { id } });
     } catch (error: any) {
       if (error.code === '23505') { // PostgreSQL unique constraint error
         throw new Error('A resource with this name already exists');
@@ -208,7 +214,7 @@ export class ResourceRepository {
     }
 
     try {
-      const result = await this.repository.delete(id);
+      const result = await this.getRepository().delete(id);
       return (result.affected ?? 0) > 0;
     } catch (error: any) {
       throw new Error(`Failed to delete resource: ${error.message}`);
@@ -234,14 +240,14 @@ export class ResourceRepository {
     }
 
     try {
-      const entities = resources.map(resource => this.repository.create({
+      const entities = resources.map(resource => this.getRepository().create({
         ...resource,
         name: resource.name.trim(),
         createdAt: new Date(),
         updatedAt: new Date()
       }));
 
-      return await this.repository.save(entities);
+      return await this.getRepository().save(entities);
     } catch (error: any) {
       if (error.code === '23505') {
         throw new Error('One or more resources have duplicate names');
@@ -267,20 +273,20 @@ export class ResourceRepository {
         typeStats,
         valueStats
       ] = await Promise.all([
-        this.repository.count(),
-        this.repository
+        this.getRepository().count(),
+        this.getRepository()
           .createQueryBuilder('resource')
           .select('resource.status', 'status')
           .addSelect('COUNT(*)', 'count')
           .groupBy('resource.status')
           .getRawMany(),
-        this.repository
+        this.getRepository()
           .createQueryBuilder('resource')
           .select('resource.type', 'type')
           .addSelect('COUNT(*)', 'count')
           .groupBy('resource.type')
           .getRawMany(),
-        this.repository
+        this.getRepository()
           .createQueryBuilder('resource')
           .select('AVG(resource.value)', 'average')
           .addSelect('SUM(resource.value)', 'total')
