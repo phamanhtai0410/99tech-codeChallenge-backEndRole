@@ -54,7 +54,7 @@ if [ "$DOCKER_AVAILABLE" = true ]; then
             -e POSTGRES_USER=postgres \
             -e POSTGRES_PASSWORD=password \
             -e POSTGRES_DB=99tech_challenge \
-            -p 5432:5432 \
+            -p 5433:5432 \
             -d postgres:15
         
         echo "⏳ Waiting for PostgreSQL to start..."

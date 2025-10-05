@@ -5,38 +5,35 @@ This module provides an enterprise-grade REST API with TypeORM and PostgreSQL, d
 ## Installation
 
 ```bash
-npm install
+yarn install
 ```
 
 ## Quick Setup
 
 ```bash
-# Windows
-npm run setup
-
-# Unix/Mac/Linux
-npm run setup:bash
+# Run setup script (Linux/Mac)
+yarn setup
 ```
 
 ## Usage
 
 ```bash
 # Start development server
-npm run dev
+yarn dev
 
 # Start production server
-npm start
+yarn start
 
 # Run tests
-npm test
+yarn test
 
 # Database migrations
-npm run migration:run
-npm run migration:generate
-npm run migration:revert
+yarn migration:run
+yarn migration:generate
+yarn migration:revert
 
 # Database setup (Docker)
-npm run docker:db
+yarn docker:db
 ```
 
 ## Features
@@ -65,11 +62,13 @@ Copy `.env.example` to `.env` and configure:
 
 ```env
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5433
 DB_USERNAME=postgres
 DB_PASSWORD=password
 DB_DATABASE=99tech_challenge
 ```
+
+> **Security Note:** Using port 5433 instead of the default 5432 to avoid automated port scanners targeting standard PostgreSQL installations.
 
 ## Files Structure
 
